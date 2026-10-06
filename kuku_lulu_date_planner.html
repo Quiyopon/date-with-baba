@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuku & Lulu's Date Planner 💕 - Two Little Souls. One Big Adventure.</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Fredoka & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kukuDark: '#2B2B2D',
+            kukuBlue: '#6CB2EB',
+            kukuEye: '#FBBF24',
+            luluGray: '#9FA5B5',
+            luluPink: '#FFA4B6',
+            luluEar: '#FFD1DC',
+            pastelPink50: '#FFF5F7',
+            pastelPink100: '#FFE5EC',
+            pastelPink200: '#FFC2D1',
+            pastelPink300: '#FFB3C6',
+            pastelPink400: '#FF8FAB',
+            pastelPink500: '#FB6F92',
+            creamyBg: '#FFFDF9',
+            potatoOrange: '#FF8A00',
+            bobaBrown: '#92400E',
+          },
+          fontFamily: {
+            bubbly: ['Fredoka', 'sans-serif'],
+            body: ['Quicksand', 'sans-serif'],
+          },
+          boxShadow: {
+            'cuddle': '0 8px 30px -4px rgba(251, 111, 146, 0.22)',
+            'cuddle-hover': '0 14px 34px -4px rgba(251, 111, 146, 0.35)',
+            'ticket': '0 12px 36px -6px rgba(159, 165, 181, 0.28)',
+            'pill': '0 4px 14px rgba(255, 143, 171, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: radial-gradient(circle at 10% 10%, #FFF0F3 0%, #FFFDF9 50%, #FFE5EC 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .font-bubbly {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    /* Ambient floating emojis */
+    .bg-floater {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+      animation: floatUpSlow 13s linear infinite;
+    }
+
+    @keyframes floatUpSlow {
+      0% {
+        transform: translateY(105vh) scale(0.6) rotate(0deg);
+        opacity: 0;
+      }
+      20% { opacity: 0.45; }
+      80% { opacity: 0.35; }
+      100% {
+        transform: translateY(-15vh) scale(1.1) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Character idle animations */
+    @keyframes kukuBounce {
+      0%, 100% { transform: translateY(0) scale(1, 1); }
+      50% { transform: translateY(-6px) scale(0.98, 1.03); }
+    }
+    @keyframes luluSway {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-2.5deg); }
+      75% { transform: rotate(2.5deg); }
+    }
+
+    .kuku-idle {
+      animation: kukuBounce 3s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+    .lulu-idle {
+      animation: luluSway 3.5s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+
+    /* Interactive cards */
+    .date-card {
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .date-card:hover {
+      transform: translateY(-3px) scale(1.015);
+      border-color: #FF8FAB;
+    }
+    .date-card:active {
+      transform: scale(0.98);
+    }
+    .date-card.selected {
+      border-color: #FB6F92;
+      background: linear-gradient(135deg, #FFFFFF 0%, #FFF0F4 100%);
+      box-shadow: 0 10px 24px -2px rgba(251, 111, 146, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Locked / Required card styling */
+    .date-card-locked {
+      background: linear-gradient(135deg, #FFF6F8 0%, #FFE9EF 100%);
+      border-color: #FB6F92;
+      box-shadow: 0 6px 18px -2px rgba(251, 111, 146, 0.22);
+    }
+
+    /* Speech bubble arrow */
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: #ffffff transparent;
+      display: block;
+      width: 0;
+    }
+
+    .heart-throb {
+      animation: pulseHeart 1.6s infinite ease-in-out;
+    }
+    @keyframes pulseHeart {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.22); }
+    }
+  </style>
+</head>
+
+<body class="text-rose-950 selection:bg-pastelPink300 selection:text-rose-900 relative">
+  <!-- Dynamic floating particles -->
+  <div id="ambient-container" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- Top header with cute character hero -->
+    <header class="text-center max-w-3xl mx-auto mb-8 relative">
+      
+      <!-- Top status pill & sound toggle -->
+      <div class="flex items-center justify-between gap-2 max-w-xl mx-auto mb-3">
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-pastelPink100/90 text-pastelPink500 text-xs sm:text-sm font-semibold border border-pastelPink200 shadow-sm">
+          <span>🐾 Kuku ♂ & Lulu ♀</span>
+          <span class="text-rose-400">•</span>
+          <span>Date Builder for Baba 💕</span>
+        </div>
+
+        <button id="sound-toggle-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 hover:bg-white text-rose-500 text-xs font-semibold border border-rose-200 shadow-sm transition active:scale-95">
+          <i data-lucide="volume-2" id="sound-icon" class="w-3.5 h-3.5"></i>
+          <span id="sound-status-text">Sound: ON</span>
+        </button>
+      </div>
+
+      <!-- Illustrated Kuku & Lulu Vector Banner -->
+      <div class="relative inline-block mb-3">
+        <div class="flex items-end justify-center gap-3 sm:gap-6 py-2 px-6">
+          
+          <!-- Kuku (Cat) SVG -->
+          <div class="kuku-idle flex flex-col items-center group cursor-pointer" id="kuku-hero" title="Click Kuku to hear him meow!">
+            <div class="relative w-28 h-28 sm:w-36 sm:h-36">
+              <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-md">
+                <!-- Tail -->
+                <path d="M 40 120 C 15 130 15 85 30 75 C 34 83 36 95 48 108" fill="#2B2B2D" stroke="#1F1F21" stroke-width="2" stroke-linecap="round"/>
+                <!-- Body / Blue Hoodie -->
+                <ellipse cx="80" cy="115" rx="42" ry="34" fill="#6CB2EB"/>
+                <!-- Blue Hoodie Pocket & Fish Patch -->
+                <path d="M 64 124 Q 80 134 96 124 L 92 110 Q 80 116 68 110 Z" fill="#589BCE" opacity="0.9"/>
+                <!-- Fish Symbol on Hoodie -->
+                <ellipse cx="80" cy="122" rx="7" ry="3.5" fill="#FFFFFF"/>
+                <polygon points="73,122 69,118 69,126" fill="#FFFFFF"/>
+                <circle cx="83" cy="121" r="0.9" fill="#589BCE"/>
+                <!-- Paws -->
+                <ellipse cx="64" cy="140" rx="9" ry="7" fill="#2B2B2D"/>
+                <ellipse cx="96" cy="140" rx="9" ry="7" fill="#2B2B2D"/>
+
+                <!-- Cat Head -->
+                <ellipse cx="80" cy="65" rx="44" ry="38" fill="#2B2B2D"/>
+                <!-- Ears -->
+                <polygon points="42,50 36,15 62,36" fill="#2B2B2D"/>
+                <polygon points="44,46 41,24 59,37" fill="#FFA4B6" opacity="0.75"/>
+                <polygon points="118,50 124,15 98,36" fill="#2B2B2D"/>
+                <polygon points="116,46 119,24 101,37" fill="#FFA4B6" opacity="0.75"/>
+
+                <!-- Golden Sparkle Eyes -->
+                <ellipse cx="63" cy="67" rx="9" ry="11" fill="#FBBF24"/>
+                <ellipse cx="64" cy="67" rx="6" ry="8.5" fill="#1F1F21"/>
+                <circle cx="61" cy="63" r="3.2" fill="#FFFFFF"/>
+                <circle cx="66" cy="71" r="1.3" fill="#FFFFFF"/>
+
+                <!-- Right Eye Playful Wink -->
+                <g id="kuku-right-eye">
+                  <path d="M 90 67 Q 98 58 104 67" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" fill="none"/>
+                  <path d="M 91 67 Q 98 60 103 67" stroke="#1F1F21" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                </g>
+
+                <!-- Cheeks -->
+                <ellipse cx="50" cy="75" rx="6" ry="3" fill="#FF8FAB" opacity="0.6"/>
+                <ellipse cx="110" cy="75" rx="6" ry="3" fill="#FF8FAB" opacity="0.6"/>
+
+                <!-- Nose & Mouth -->
+                <polygon points="80,72 78,74 82,74" fill="#FFA4B6"/>
+                <path d="M 75 75 Q 80 81 80 75 Q 80 81 85 75" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+                
+                <!-- Crown icon -->
+                <path d="M 45 25 L 48 17 L 54 22 L 60 17 L 63 25 Z" fill="#6CB2EB" stroke="#FFFFFF" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="mt-1 px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[11px] font-bubbly flex items-center gap-1 shadow-sm">
+              <span>Kuku ♂</span>
+              <span class="text-amber-300">🐾</span>
+            </div>
+          </div>
+
+          <!-- Pulsing Heart -->
+          <div class="pb-12 text-2xl heart-throb select-none">
+            💕
+          </div>
+
+          <!-- Lulu (Koala) SVG -->
+          <div class="lulu-idle flex flex-col items-center group cursor-pointer" id="lulu-hero" title="Click Lulu to hear her giggle!">
+            <div class="relative w-28 h-28 sm:w-36 sm:h-36">
+              <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-md">
+                <!-- Large Koala Ears -->
+                <circle cx="36" cy="46" r="28" fill="#9FA5B5"/>
+                <circle cx="36" cy="46" r="19" fill="#FFD1DC"/>
+                <circle cx="124" cy="46" r="28" fill="#9FA5B5"/>
+                <circle cx="124" cy="46" r="19" fill="#FFD1DC"/>
+
+                <!-- Pink Bow -->
+                <g transform="translate(112, 24) rotate(15)">
+                  <polygon points="0,6 -10,0 -10,12" fill="#FB6F92"/>
+                  <polygon points="0,6 10,0 10,12" fill="#FB6F92"/>
+                  <circle cx="0" cy="6" r="3.5" fill="#FF8FAB"/>
+                </g>
+
+                <!-- Body / Pink Hoodie -->
+                <ellipse cx="80" cy="118" rx="40" ry="32" fill="#FFA4B6"/>
+                <!-- Heart Logo -->
+                <path d="M 80 120 C 78 116 73 116 73 120 C 73 124 80 128 80 128 C 80 128 87 124 87 120 C 87 116 82 116 80 120 Z" fill="#FFFFFF"/>
+
+                <!-- Paws -->
+                <ellipse cx="64" cy="142" rx="9" ry="7" fill="#9FA5B5"/>
+                <ellipse cx="96" cy="142" rx="9" ry="7" fill="#9FA5B5"/>
+
+                <!-- Koala Head -->
+                <ellipse cx="80" cy="68" rx="42" ry="36" fill="#9FA5B5"/>
+
+                <!-- Eyes -->
+                <ellipse cx="60" cy="67" rx="5.5" ry="7" fill="#2B2B2D"/>
+                <circle cx="58" cy="65" r="2.2" fill="#FFFFFF"/>
+                <ellipse cx="100" cy="67" rx="5.5" ry="7" fill="#2B2B2D"/>
+                <circle cx="98" cy="65" r="2.2" fill="#FFFFFF"/>
+
+                <!-- Blushing Cheeks -->
+                <ellipse cx="48" cy="74" rx="7" ry="4" fill="#FF8FAB" opacity="0.7"/>
+                <ellipse cx="112" cy="74" rx="7" ry="4" fill="#FF8FAB" opacity="0.7"/>
+
+                <!-- Koala Nose & Smile -->
+                <ellipse cx="80" cy="72" rx="10" ry="14" fill="#4A4E5C"/>
+                <ellipse cx="78" cy="67" rx="2" ry="4" fill="#6A6F82" opacity="0.6"/>
+                <path d="M 74 89 Q 80 94 86 89" fill="none" stroke="#2B2B2D" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="mt-1 px-2.5 py-0.5 rounded-full bg-pastelPink500 text-white text-[11px] font-bubbly flex items-center gap-1 shadow-sm">
+              <span>Lulu ♀</span>
+              <span class="text-rose-100">🎀</span>
+            </div>
+          </div>
+
+        </div>
+
+        <h1 class="font-bubbly text-3xl sm:text-5xl font-bold tracking-tight text-pastelPink500 drop-shadow-sm mt-1">
+          Kuku & Lulu’s Date Planner! 🐾
+        </h1>
+        <p class="text-rose-800/80 font-medium text-sm sm:text-base mt-1 flex items-center justify-center gap-1">
+          <span>“Two little souls. One big adventure.”</span>
+          <span class="text-rose-400">✨</span>
+        </p>
+
+        <!-- Reactive Speech Bubble -->
+        <div class="mt-4 relative inline-block max-w-lg w-full px-2">
+          <div id="character-dialog-bubble" class="speech-bubble bg-white border-2 border-pastelPink300 px-4 py-2.5 rounded-2xl shadow-pill text-xs sm:text-sm font-semibold text-rose-700 transition-all duration-300">
+            🐾 <span id="dialog-text">Lulu says: "Pick our date for Baba! Coco & Potato Corner + cuddles are already locked in! 🥰"</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="mt-2 flex flex-wrap items-center justify-center gap-3">
+        <button id="surprise-btn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-pastelPink400 to-pastelPink500 hover:from-pastelPink500 hover:to-rose-500 text-white font-semibold shadow-pill transition-all transform active:scale-95 text-xs sm:text-sm">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Surprise Us! 🎲</span>
+        </button>
+        <button id="reset-btn" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/95 hover:bg-white text-rose-500 font-semibold border border-pastelPink200 shadow-sm transition-all active:scale-95 text-xs sm:text-sm">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <span>Reset Non-Required</span>
+        </button>
+      </div>
+
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: The 5 Date Customization Steps -->
+      <main class="lg:col-span-7 space-y-6">
+
+        <!-- STEP 1: The Date Vibe & Mood -->
+        <section class="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-6 border-2 border-pastelPink100 shadow-cuddle">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-pastelPink100 text-pastelPink500 font-bubbly font-bold flex items-center justify-center text-sm shadow-sm">1</span>
+              <div>
+                <h2 class="font-bubbly text-xl font-bold text-rose-700">The Date Vibe & Mood</h2>
+                <p class="text-xs text-rose-400">Which kind of energy are we bringing today?</p>
+              </div>
+            </div>
+            <span class="text-2xl">🧸</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-category="vibe">
+            
+            <button type="button" class="date-card p-4 rounded-2xl border-2 border-pastelPink100 bg-white text-left flex items-start gap-3.5 group" 
+              data-value="Playful Arcade & Chaos" 
+              data-icon="🕹️" 
+              data-kuku="Let's gooo! I'm winning you all the claw machine plushies!" 
+              data-lulu="Prepare to get crushed in air hockey, Baba! 💥">
+              <span class="text-3xl p-2 rounded-xl bg-pastelPink100/60 group-hover:scale-110 transition-transform shrink-0">🕹️💥</span>
+              <div>
+                <div class="font-bold text-rose-900 text-sm">Playful Arcade & Chaos</div>
+                <div class="text-[11px] text-rose-400 leading-relaxed mt-0.5">Claw machines, racing games, basketball hoops & cheerful laughing chaos!</div>
+              </div>
+            </button>
+
+            <button type="button" class="date-card p-4 rounded-2xl border-2 border-pastelPink100 bg-white text-left flex items-start gap-3.5 group" 
+              data-value="Store Visit and Window Shopping" 
+              data-icon="🛍️" 
+              data-kuku="Holding hands the whole time and carrying your shopping bags!" 
+              data-lulu="Yay! Looking at cute stationery, plushies, and clothes together! ✨">
+              <span class="text-3xl p-2 rounded-xl bg-pastelPink100/60 group-hover:scale-110 transition-transform shrink-0">🛍️✨</span>
+              <div>
+                <div class="font-bold text-rose-900 text-sm">Store Visit and Window Shopping</div>
+                <div class="text-[11px] text-rose-400 leading-relaxed mt-0.5">Strolling through shops, admiring cute trinkets, trying on hats & relaxing.</div>
+              </div>
+            </button>
+
+          </div>
+        </section>
+
+        <!-- STEP 2: What Are We Feasting On? -->
+        <section class="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-6 border-2 border-pastelPink100 shadow-cuddle">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-pastelPink100 text-pastelPink500 font-bubbly font-bold flex items-center justify-center text-sm shadow-sm">2</span>
+              <div>
+                <h2 class="font-bubbly text-xl font-bold text-rose-700">What Are We Feasting On?</h2>
+                <p class="text-xs text-rose-400">Coco & Potato Corner is compulsory! Pick additional cravings too:</p>
+              </div>
+            </div>
+            <span class="text-2xl">🍜</span>
+          </div>
+
+          <div class="space-y-3" data-category="food">
+            
+            <!-- REQUIRED: Coco and Potato Corner -->
+            <div class="date-card-locked p-4 rounded-2xl border-2 border-pastelPink400 text-left flex items-start justify-between gap-3 group relative cursor-pointer"
+              id="coco-potato-card"
+              onclick="triggerCocoPotatoReaction()">
+              <div class="flex items-start gap-3.5">
+                <span class="text-3xl p-2 rounded-xl bg-white shadow-xs shrink-0">🧋🍟</span>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-rose-900 text-sm sm:text-base">Coco and Potato Corner</span>
+                    <span class="px-2 py-0.5 rounded-full bg-pastelPink500 text-white text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                      Must Have! 💕
+                    </span>
+                  </div>
+                  <div class="text-xs text-rose-600 font-medium mt-0.5">Mega BBQ/Sour Cheese fries + sweet creamy Coco milk tea non-stop!</div>
+                  <div class="text-[11px] text-pastelPink500 mt-1 italic">✨ Contractually locked by Lulu & Kuku! You can't unpick this!</div>
+                </div>
+              </div>
+              <div class="shrink-0 p-2 bg-white rounded-full text-pastelPink500 shadow-sm">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-pastelPink500 fill-pastelPink100"></i>
+              </div>
+            </div>
+
+            <!-- Additional Food Options (Multi-selectable) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              
+              <button type="button" class="food-extra-card date-card p-3 rounded-2xl border-2 border-pastelPink100 bg-white text-left group"
+                data-value="Mr. Kimbob" 
+                data-icon="🍲"
+                data-kuku="Sizzling Bibimbap with sunny side egg!" 
+                data-lulu="Yes please! Mixing all the spicy beef and kimchi!">
+                <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🍲🔥</div>
+                <div class="font-bold text-rose-900 text-xs sm:text-sm">Mr. Kimbob</div>
+                <div class="text-[10px] text-rose-400 mt-0.5">Sizzling beef bibimbap & crispy egg</div>
+              </button>
+
+              <button type="button" class="food-extra-card date-card p-3 rounded-2xl border-2 border-pastelPink100 bg-white text-left group"
+                data-value="Jollibee" 
+                data-icon="🍗"
+                data-kuku="Chickenjoy with extra gravy is king!" 
+                data-lulu="Jolly Spaghetti with lots of hotdogs and cheese!">
+                <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🍗🐝</div>
+                <div class="font-bold text-rose-900 text-xs sm:text-sm">Jollibee</div>
+                <div class="text-[10px] text-rose-400 mt-0.5">Crispy Chickenjoy & sweet spaghetti</div>
+              </button>
+
+              <button type="button" class="food-extra-card date-card p-3 rounded-2xl border-2 border-pastelPink100 bg-white text-left group"
+                data-value="McDonald's" 
+                data-icon="🍔"
+                data-kuku="Burgers & dipping nuggets into sweet & sour sauce!" 
+                data-lulu="Hot fries and crispy nuggets to share!">
+                <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🍔🍟</div>
+                <div class="font-bold text-rose-900 text-xs sm:text-sm">McDonald's</div>
+                <div class="text-[10px] text-rose-400 mt-0.5">Juicy burgers, nuggets & crispy fries</div>
+              </button>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- STEP 3: The Main Event -->
+        <section class="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-6 border-2 border-pastelPink100 shadow-cuddle">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-pastelPink100 text-pastelPink500 font-bubbly font-bold flex items-center justify-center text-sm shadow-sm">3</span>
+              <div>
+                <h2 class="font-bubbly text-xl font-bold text-rose-700">The Main Event</h2>
+                <p class="text-xs text-rose-400">Our special date highlight (Pick what we're doing!)</p>
+              </div>
+            </div>
+            <span class="text-2xl">📸</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-category="activity">
+            
+            <button type="button" class="date-card p-4 rounded-2xl border-2 border-pastelPink100 bg-white text-left flex items-start gap-3.5 group"
+              data-value="Photobooth Strip Session" 
+              data-icon="📸"
+              data-kuku="I call wearing the bunny ears headband while kissing your cheek!" 
+              data-lulu="We are printing 4 strips and putting one right in your phone case!">
+              <span class="text-3xl p-2 rounded-xl bg-pastelPink100/60 group-hover:scale-110 transition-transform shrink-0">📸🎞️</span>
+              <div>
+                <div class="font-bold text-rose-900 text-sm">Photobooth Strip Session</div>
+                <div class="text-[11px] text-rose-400 leading-relaxed mt-0.5">Silly hats, cute couple poses, prints to take home & cherish forever.</div>
+              </div>
+            </button>
+
+            <button type="button" class="date-card p-4 rounded-2xl border-2 border-pastelPink100 bg-white text-left flex items-start gap-3.5 group"
+              data-value="Karaoke Times" 
+              data-icon="🎤"
+              data-kuku="I'm serenading you on top of the couch with our favorite songs!" 
+              data-lulu="Get ready for our romantic duets and laughing all night! 🎶">
+              <span class="text-3xl p-2 rounded-xl bg-pastelPink100/60 group-hover:scale-110 transition-transform shrink-0">🎤🎶</span>
+              <div>
+                <div class="font-bold text-rose-900 text-sm">Karaoke Times</div>
+                <div class="text-[11px] text-rose-400 leading-relaxed mt-0.5">Belt out nostalgic love songs, pop bangers, and duet our hearts out!</div>
+              </div>
+            </button>
+
+            <button type="button" class="date-card p-4 rounded-2xl border-2 border-pastelPink100 bg-white text-left flex items-start gap-3.5 group"
+              data-value="Record a dance ( please bare with me :< )" 
+              data-icon="💃"
+              data-kuku="Baba will do his absolute best dance moves for you! No shame at all! 🕺💕" 
+              data-lulu="Hehe yes! We are practicing cute TikTok/Reels dance trends together! 🙈✨">
+              <span class="text-3xl p-2 rounded-xl bg-pastelPink100/60 group-hover:scale-110 transition-transform shrink-0">💃🕺</span>
+              <div>
+                <div class="font-bold text-rose-900 text-sm">Record a dance ( please bare with me :< )</div>
+                <div class="text-[11px] text-rose-400 leading-relaxed mt-0.5">Practicing cute couple dances, silly retakes, laughing & saving sweet memories!</div>
+              </div>
+            </button>
+
+            <button type="button" class="date-card p-4 rounded-2xl border-2 border-pastelPink100 bg-white text-left flex items-start gap-3.5 group"
+              data-value="Go to the cinema" 
+              data-icon="🎬"
+              data-kuku="Movie time! Big butter popcorn and holding hands in the dark! 🍿" 
+              data-lulu="Sharing popcorn, leaning on Baba's shoulder, and watching a fun movie together! 💖">
+              <span class="text-3xl p-2 rounded-xl bg-pastelPink100/60 group-hover:scale-110 transition-transform shrink-0">🎬🍿</span>
+              <div>
+                <div class="font-bold text-rose-900 text-sm">Go to the cinema</div>
+                <div class="text-[11px] text-rose-400 leading-relaxed mt-0.5">Giant bucket of popcorn, sweet drinks, holding hands & cozy cinema seats!</div>
+              </div>
+            </button>
+
+          </div>
+        </section>
+
+        <!-- STEP 4: Sweet Tooth Non-Negotiable! -->
+        <section class="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-6 border-2 border-pastelPink100 shadow-cuddle">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-pastelPink100 text-pastelPink500 font-bubbly font-bold flex items-center justify-center text-sm shadow-sm">4</span>
+              <div>
+                <h2 class="font-bubbly text-xl font-bold text-rose-700">Sweet Tooth Non-Negotiable!</h2>
+                <p class="text-xs text-rose-400">Princess dessert round is mandatory 🍓</p>
+              </div>
+            </div>
+            <span class="text-2xl">🍰</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" data-category="dessert">
+            
+            <button type="button" class="date-card p-3.5 rounded-2xl border-2 border-pastelPink100 bg-white text-center group"
+              data-value="Matcha and Coffee" 
+              data-icon="🍵"
+              data-kuku="Caffeine boost for Kuku + earth-sweet matcha for Princess Lulu!" 
+              data-lulu="Iced matcha with oat milk is the supreme treat! 💚">
+              <span class="text-3xl block mb-1.5 group-hover:scale-125 transition-transform">🍵☕</span>
+              <div class="font-bold text-rose-900 text-xs sm:text-sm">Matcha and Coffee</div>
+              <div class="text-[10px] text-rose-400 mt-0.5 leading-tight">Rich iced matcha latte & cozy fragrant coffee</div>
+            </button>
+
+            <button type="button" class="date-card p-3.5 rounded-2xl border-2 border-pastelPink100 bg-white text-center group"
+              data-value="Avocadoria" 
+              data-icon="🥑"
+              data-kuku="Creamy avocado soft serve with pearl and chia toppings!" 
+              data-lulu="Avocado shake dream! It's so creamy and healthy-sweet! 🥑">
+              <span class="text-3xl block mb-1.5 group-hover:scale-125 transition-transform">🥑🍨</span>
+              <div class="font-bold text-rose-900 text-xs sm:text-sm">Avocadoria</div>
+              <div class="text-[10px] text-rose-400 mt-0.5 leading-tight">Avocado soft-serve dessert & dreamy shake</div>
+            </button>
+
+            <button type="button" class="date-card p-3.5 rounded-2xl border-2 border-pastelPink100 bg-white text-center group"
+              data-value="McFlurry" 
+              data-icon="🍦"
+              data-kuku="Oreo McFlurry with extra cookies mixed in!" 
+              data-lulu="Sharing bites of cold Oreo soft serve with Baba! 🍪">
+              <span class="text-3xl block mb-1.5 group-hover:scale-125 transition-transform">🍦✨</span>
+              <div class="font-bold text-rose-900 text-xs sm:text-sm">McFlurry</div>
+              <div class="text-[10px] text-rose-400 mt-0.5 leading-tight">Classic crunchy Oreo vanilla soft-serve swirl</div>
+            </button>
+
+          </div>
+        </section>
+
+        <!-- STEP 5: Sweet Date Finale (ALL REQUIRED!) -->
+        <section class="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-6 border-2 border-pastelPink100 shadow-cuddle relative overflow-hidden">
+          
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-pastelPink100 text-pastelPink500 font-bubbly font-bold flex items-center justify-center text-sm shadow-sm">5</span>
+              <div>
+                <h2 class="font-bubbly text-xl font-bold text-rose-700">Sweet Date Finale</h2>
+                <p class="text-xs text-rose-400">Strictly mandatory! Both are permanently included in our date 💖</p>
+              </div>
+            </div>
+            <span class="text-2xl">🌙</span>
+          </div>
+
+          <!-- Non-negotiable signed banner -->
+          <div class="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-pastelPink100 border border-pastelPink300 text-pastelPink500 text-xs font-bold">
+            <span>🐾 Non-negotiable contract signed by Lulu & Kuku! 💕</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            
+            <!-- Requirement 1: Long Hug & Forehead Kisses -->
+            <div class="date-card-locked p-4 rounded-2xl border-2 border-pastelPink300 text-left flex items-start justify-between gap-3 cursor-pointer group"
+              onclick="triggerHugReaction()">
+              <div class="flex items-start gap-3.5">
+                <span class="text-3xl p-2 rounded-xl bg-white shadow-xs shrink-0">🫂💋</span>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-rose-900 text-sm sm:text-base">Long Hug & Forehead Kisses</span>
+                    <span class="px-2 py-0.5 rounded-full bg-pastelPink500 text-white text-[10px] font-bold uppercase tracking-wider">Required</span>
+                  </div>
+                  <div class="text-xs text-rose-500 font-medium mt-0.5">Infinite warmth, forehead kisses, and holding on tight.</div>
+                </div>
+              </div>
+              <div class="shrink-0 p-1.5 bg-white rounded-full text-pastelPink500 shadow-xs">
+                <i data-lucide="check" class="w-4 h-4 text-pastelPink500"></i>
+              </div>
+            </div>
+
+            <!-- Requirement 2: Sleep with Baba -->
+            <div class="date-card-locked p-4 rounded-2xl border-2 border-pastelPink300 text-left flex items-start justify-between gap-3 cursor-pointer group"
+              onclick="triggerSleepReaction()">
+              <div class="flex items-start gap-3.5">
+                <span class="text-3xl p-2 rounded-xl bg-white shadow-xs shrink-0">😴🛌</span>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-rose-900 text-sm sm:text-base">Sleep with Baba</span>
+                    <span class="px-2 py-0.5 rounded-full bg-pastelPink500 text-white text-[10px] font-bold uppercase tracking-wider">Required</span>
+                  </div>
+                  <div class="text-xs text-rose-500 font-medium mt-0.5">Cuddled up safe and sound in blankets, sound asleep together.</div>
+                </div>
+              </div>
+              <div class="shrink-0 p-1.5 bg-white rounded-full text-pastelPink500 shadow-xs">
+                <i data-lucide="check" class="w-4 h-4 text-pastelPink500"></i>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- SPECIAL REQUEST NOTE FOR BABA -->
+        <section class="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-6 border-2 border-pastelPink100 shadow-cuddle">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="w-8 h-8 rounded-full bg-pastelPink100 text-pastelPink500 font-bubbly font-bold flex items-center justify-center text-sm shadow-sm">💌</span>
+            <h2 class="font-bubbly text-xl font-bold text-rose-700">Special Note or Message for Baba 💕</h2>
+          </div>
+          <p class="text-xs text-rose-400 mb-3">Add any dress code wishes, secret cravings, sweet reminders, or love messages:</p>
+          <textarea id="girlfriend-note" rows="3" class="w-full rounded-2xl border-2 border-pastelPink200 p-3.5 text-sm text-rose-900 placeholder:text-rose-300 focus:outline-none focus:border-pastelPink500 focus:ring-2 focus:ring-pastelPink200 transition-all resize-none bg-rose-50/30" placeholder="e.g. Wear your cute hoodie, bring lots of patience for claw machines, and don't forget to hold my hand! 🌸"></textarea>
+        </section>
+
+      </main>
+
+      <!-- Right Column: Sticky Live Date Pass Ticket -->
+      <aside class="lg:col-span-5 sticky top-8 space-y-5 pt-4">
+
+        <!-- Live Date Ticket Card -->
+        <div class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-pastelPink300 shadow-ticket relative transition-all">
+          
+          <!-- Top Badge: Positioned cleanly with generous vertical room so it never clips -->
+          <div class="flex justify-center -mt-10 mb-3">
+            <div class="px-4 py-1.5 bg-gradient-to-r from-pastelPink400 via-pastelPink500 to-rose-400 text-white rounded-full text-xs font-bold shadow-md uppercase tracking-wider flex items-center gap-2 border-2 border-white">
+              <span>🎟️</span>
+              <span>Official Date Pass</span>
+              <span>🎟️</span>
+            </div>
+          </div>
+
+          <div class="text-center pb-3 border-b-2 border-dashed border-pastelPink200">
+            <div class="flex items-center justify-center gap-2 mb-1">
+              <span class="text-xl">🐱</span>
+              <h3 class="font-bubbly text-2xl font-bold text-rose-600">Our Date Ticket</h3>
+              <span class="text-xl">🐨</span>
+            </div>
+            <p class="text-xs text-rose-400">Planning with Baba • <span id="progress-badge" class="font-bold text-pastelPink500">2 / 5 categories ready</span></p>
+          </div>
+
+          <!-- Real-Time Items List -->
+          <div class="py-4 space-y-3 text-sm">
+            
+            <!-- Vibe -->
+            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-rose-50/50 border border-pastelPink100/60">
+              <span class="text-2xl shrink-0 p-1 rounded-lg bg-white shadow-xs" id="summary-icon-vibe">🧸</span>
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">1. The Vibe</span>
+                <p id="summary-text-vibe" class="font-semibold text-rose-900 text-xs sm:text-sm truncate italic text-rose-400/90">Waiting for your pick...</p>
+              </div>
+            </div>
+
+            <!-- Food (Includes required Coco & Potato Corner + Extras) -->
+            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-rose-50/50 border border-pastelPink100/60">
+              <span class="text-2xl shrink-0 p-1 rounded-lg bg-white shadow-xs" id="summary-icon-food">🧋</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">2. The Feast</span>
+                  <span class="text-[9px] font-bold text-pastelPink500 bg-pastelPink100 px-1.5 py-0.5 rounded-md">Required</span>
+                </div>
+                <p id="summary-text-food" class="font-bold text-rose-900 text-xs sm:text-sm">Coco & Potato Corner</p>
+                <p id="summary-extra-food" class="text-[11px] text-rose-500 font-medium hidden"></p>
+              </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-rose-50/50 border border-pastelPink100/60">
+              <span class="text-2xl shrink-0 p-1 rounded-lg bg-white shadow-xs" id="summary-icon-activity">📸</span>
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">3. Main Adventure</span>
+                <p id="summary-text-activity" class="font-semibold text-rose-900 text-xs sm:text-sm truncate italic text-rose-400/90">Waiting for your pick...</p>
+              </div>
+            </div>
+
+            <!-- Dessert -->
+            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-rose-50/50 border border-pastelPink100/60">
+              <span class="text-2xl shrink-0 p-1 rounded-lg bg-white shadow-xs" id="summary-icon-dessert">🍰</span>
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">4. Sweet Treat</span>
+                <p id="summary-text-dessert" class="font-semibold text-rose-900 text-xs sm:text-sm truncate italic text-rose-400/90">Waiting for your pick...</p>
+              </div>
+            </div>
+
+            <!-- Ending (Both Locked & Required) -->
+            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-rose-50/50 border border-pastelPink100/60">
+              <span class="text-2xl shrink-0 p-1 rounded-lg bg-white shadow-xs">🫂💤</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">5. Sweet Finale</span>
+                  <span class="text-[9px] font-bold text-pastelPink500 bg-pastelPink100 px-1.5 py-0.5 rounded-md">2 Locked</span>
+                </div>
+                <p class="font-bold text-rose-900 text-xs sm:text-sm leading-tight">
+                  Long Hug & Forehead Kisses + Sleep with Baba 💖
+                </p>
+              </div>
+            </div>
+
+            <!-- Live Note snippet -->
+            <div id="summary-note-box" class="hidden p-3 rounded-xl bg-pastelPink100/60 border border-pastelPink200 text-xs">
+              <span class="font-bold text-pastelPink500 block mb-0.5">💌 Note for Baba:</span>
+              <p id="summary-note-text" class="text-rose-900 italic line-clamp-2"></p>
+            </div>
+
+          </div>
+
+          <!-- Bottom Action: Lock In Date -->
+          <div class="pt-3 border-t-2 border-dashed border-pastelPink200 space-y-2.5">
+            <button id="lock-date-btn" class="w-full py-3.5 px-4 bg-gradient-to-r from-pastelPink500 via-rose-500 to-pastelPink400 hover:from-rose-600 hover:to-pastelPink500 text-white font-bubbly text-base sm:text-lg font-bold rounded-2xl shadow-pill flex items-center justify-center gap-2 transform transition active:scale-95">
+              <span>Lock In Our Date! 💌</span>
+            </button>
+            <p class="text-[11px] text-center text-rose-400 font-medium">
+              Locks our ticket, fires confetti & copies the message for Baba! ✨
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Official Kuku & Lulu Guarantee Card -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 border border-pastelPink200 text-center space-y-1">
+          <p class="text-xs font-bold text-rose-600 flex items-center justify-center gap-1.5">
+            <span>🐾</span> Official Kuku & Lulu Guarantee <span>🐾</span>
+          </p>
+          <p class="text-[11px] text-rose-500/80 leading-relaxed">
+            Baba is legally & emotionally bound to dance silly, provide unlimited hugs, French fry sharing, and forehead kisses until sleepy!
+          </p>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Modal: Final Date Ticket Pass -->
+  <div id="ticket-modal" class="fixed inset-0 z-50 bg-rose-950/45 backdrop-blur-sm flex items-center justify-center p-4 hidden transition-opacity duration-300">
+    <div id="ticket-modal-card" class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-4 border-pastelPink300 transform scale-95 transition-all duration-300 relative overflow-hidden">
+      
+      <!-- Close button -->
+      <button id="close-modal-btn" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-600 flex items-center justify-center transition active:scale-95">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="text-center pb-4 border-b-2 border-dashed border-pastelPink200">
+        <div class="inline-flex items-center gap-1.5 bg-pastelPink100 text-pastelPink500 text-xs font-bold px-3 py-1 rounded-full mb-2">
+          <span>🐾 KUKU & LULU APPROVED DATE 🐾</span>
+        </div>
+        <h3 class="font-bubbly text-2xl sm:text-3xl font-bold text-rose-600">Official Date Pass For Baba! 💕</h3>
+        <p class="text-xs text-rose-400 mt-0.5">Two Little Souls. One Big Adventure.</p>
+      </div>
+
+      <!-- Ticket Items List -->
+      <div id="modal-ticket-details" class="py-4 space-y-2.5 text-xs sm:text-sm">
+        <!-- Injected dynamically via script -->
+      </div>
+
+      <!-- Copy Success Banner -->
+      <div id="copy-toast" class="hidden mb-3 p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2 animate-bounce">
+        <i data-lucide="check-check" class="w-4 h-4"></i>
+        <span>Copied to clipboard! Send it straight to Baba! 💌🐾</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <button id="copy-clipboard-btn" class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-pastelPink400 to-pastelPink500 hover:from-pastelPink500 hover:to-rose-500 text-white font-bubbly font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-pill transition active:scale-95">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Copy Itinerary for Baba 📲</span>
+        </button>
+        <button id="modal-done-btn" class="py-3 px-6 rounded-2xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-bubbly font-bold text-sm sm:text-base transition active:scale-95">
+          <span>Close & Cuddle 💖</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // State storage with the strict requirements
+    const dateChoices = {
+      vibe: null,
+      foodRequired: { value: "Coco and Potato Corner", icon: "🧋🍟" },
+      foodExtras: [],
+      activity: null,
+      dessert: null,
+      ending: [
+        { value: "Long Hug & Forehead Kisses", icon: "🫂💋" },
+        { value: "Sleep with Baba", icon: "😴🛌" }
+      ],
+      note: ""
+    };
+
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    // Web Audio synthesizer for cute game sounds
+    function playBeep(type = 'pop') {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'pop') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(820, now + 0.08);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'chime') {
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.25);
+          });
+        } else if (type === 'meow') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(580, now);
+          osc.frequency.linearRampToValueAtTime(920, now + 0.14);
+          osc.frequency.linearRampToValueAtTime(720, now + 0.32);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'purr') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(560, now + 0.2);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+      } catch (err) {}
+    }
+
+    // Setup ambient floating elements
+    function setupBackgroundParticles() {
+      const container = document.getElementById('ambient-container');
+      const emojis = ['🐾', '💕', '✨', '🧋', '🍟', '🥑', '📸', '💃', '🎬', '🎀'];
+      for (let i = 0; i < 18; i++) {
+        const span = document.createElement('span');
+        span.className = 'bg-floater';
+        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        span.style.left = `${Math.random() * 96}vw`;
+        span.style.fontSize = `${Math.random() * 1.2 + 0.9}rem`;
+        span.style.animationDuration = `${Math.random() * 8 + 8}s`;
+        span.style.animationDelay = `${Math.random() * 6}s`;
+        container.appendChild(span);
+      }
+    }
+
+    // Set speech reaction
+    function setCharacterReaction(speaker, message) {
+      const dialogEl = document.getElementById('dialog-text');
+      const bubbleEl = document.getElementById('character-dialog-bubble');
+      
+      bubbleEl.style.transform = 'scale(0.96)';
+      setTimeout(() => {
+        if (speaker === 'kuku') {
+          dialogEl.innerHTML = `<span class="text-slate-800 font-bold">Kuku ♂:</span> "${message}"`;
+        } else if (speaker === 'lulu') {
+          dialogEl.innerHTML = `<span class="text-pastelPink500 font-bold">Lulu ♀:</span> "${message}"`;
+        } else {
+          dialogEl.innerHTML = `<span class="text-rose-600 font-bold">Kuku & Lulu:</span> "${message}"`;
+        }
+        bubbleEl.style.transform = 'scale(1)';
+      }, 100);
+    }
+
+    // Reaction functions for locked elements
+    function triggerCocoPotatoReaction() {
+      playBeep('pop');
+      setCharacterReaction('both', "Coco and Potato Corner is the law! Jumbo cheese fries + brown sugar milk tea for Baba & Princess! 🧋🍟");
+    }
+
+    function triggerHugReaction() {
+      playBeep('purr');
+      setCharacterReaction('lulu', "Long hugs and forehead kisses from Baba are 100% required! Blushing already! 🥰");
+    }
+
+    function triggerSleepReaction() {
+      playBeep('purr');
+      setCharacterReaction('kuku', "Sleep with Baba is locked in! Ready for maximum cozy blanket cuddles! 😴🛌");
+    }
+
+    // Update the live sidebar summary ticket
+    function updateSummary() {
+      // 1. Vibe
+      const vibeEl = document.getElementById('summary-text-vibe');
+      const vibeIcon = document.getElementById('summary-icon-vibe');
+      if (dateChoices.vibe) {
+        vibeEl.textContent = dateChoices.vibe.value;
+        vibeEl.classList.remove('italic', 'text-rose-400/90');
+        vibeEl.classList.add('text-rose-900', 'font-bold');
+        vibeIcon.textContent = dateChoices.vibe.icon;
+      } else {
+        vibeEl.textContent = 'Waiting for your pick...';
+        vibeEl.classList.add('italic', 'text-rose-400/90');
+        vibeEl.classList.remove('text-rose-900', 'font-bold');
+      }
+
+      // 2. Food extras
+      const extraFoodEl = document.getElementById('summary-extra-food');
+      if (dateChoices.foodExtras.length > 0) {
+        extraFoodEl.classList.remove('hidden');
+        extraFoodEl.textContent = '+ Also craving: ' + dateChoices.foodExtras.map(f => `${f.icon} ${f.value}`).join(', ');
+      } else {
+        extraFoodEl.classList.add('hidden');
+      }
+
+      // 3. Activity
+      const actEl = document.getElementById('summary-text-activity');
+      const actIcon = document.getElementById('summary-icon-activity');
+      if (dateChoices.activity) {
+        actEl.textContent = dateChoices.activity.value;
+        actEl.classList.remove('italic', 'text-rose-400/90');
+        actEl.classList.add('text-rose-900', 'font-bold');
+        actIcon.textContent = dateChoices.activity.icon;
+      } else {
+        actEl.textContent = 'Waiting for your pick...';
+        actEl.classList.add('italic', 'text-rose-400/90');
+        actEl.classList.remove('text-rose-900', 'font-bold');
+      }
+
+      // 4. Dessert
+      const desEl = document.getElementById('summary-text-dessert');
+      const desIcon = document.getElementById('summary-icon-dessert');
+      if (dateChoices.dessert) {
+        desEl.textContent = dateChoices.dessert.value;
+        desEl.classList.remove('italic', 'text-rose-400/90');
+        desEl.classList.add('text-rose-900', 'font-bold');
+        desIcon.textContent = dateChoices.dessert.icon;
+      } else {
+        desEl.textContent = 'Waiting for your pick...';
+        desEl.classList.add('italic', 'text-rose-400/90');
+        desEl.classList.remove('text-rose-900', 'font-bold');
+      }
+
+      // Calculate total ready categories (Food & Finale are already locked = 2 default)
+      let count = 2; 
+      if (dateChoices.vibe) count++;
+      if (dateChoices.activity) count++;
+      if (dateChoices.dessert) count++;
+
+      const badge = document.getElementById('progress-badge');
+      badge.textContent = `${count} / 5 categories ready`;
+      if (count === 5) {
+        badge.className = 'font-bold text-emerald-500 animate-pulse';
+      } else {
+        badge.className = 'font-bold text-pastelPink500';
+      }
+
+      // Note update
+      const noteInput = document.getElementById('girlfriend-note');
+      const noteBox = document.getElementById('summary-note-box');
+      const noteText = document.getElementById('summary-note-text');
+      dateChoices.note = noteInput.value.trim();
+
+      if (dateChoices.note) {
+        noteBox.classList.remove('hidden');
+        noteText.textContent = `"${dateChoices.note}"`;
+      } else {
+        noteBox.classList.add('hidden');
+      }
+    }
+
+    // Attach listeners for single-choice categories (Vibe, Activity, Dessert)
+    function setupSingleChoiceListeners() {
+      ['vibe', 'activity', 'dessert'].forEach(category => {
+        const container = document.querySelector(`[data-category="${category}"]`);
+        if (!container) return;
+
+        const cards = container.querySelectorAll('.date-card');
+        cards.forEach(card => {
+          card.addEventListener('click', () => {
+            playBeep('pop');
+            const isSelected = card.classList.contains('selected');
+
+            cards.forEach(c => c.classList.remove('selected'));
+
+            if (isSelected) {
+              dateChoices[category] = null;
+              setCharacterReaction('lulu', "Changed your mind? Take your time, Baba will love whatever you choose!");
+            } else {
+              card.classList.add('selected');
+              dateChoices[category] = {
+                value: card.getAttribute('data-value'),
+                icon: card.getAttribute('data-icon')
+              };
+
+              const kukuQuote = card.getAttribute('data-kuku');
+              const luluQuote = card.getAttribute('data-lulu');
+              if (Math.random() > 0.5 && kukuQuote) {
+                setCharacterReaction('kuku', kukuQuote);
+              } else if (luluQuote) {
+                setCharacterReaction('lulu', luluQuote);
+              }
+            }
+            updateSummary();
+          });
+        });
+      });
+    }
+
+    // Attach listeners for extra food (Multi-select)
+    function setupFoodExtraListeners() {
+      const extraCards = document.querySelectorAll('.food-extra-card');
+      extraCards.forEach(card => {
+        card.addEventListener('click', () => {
+          playBeep('pop');
+          const value = card.getAttribute('data-value');
+          const icon = card.getAttribute('data-icon');
+          const index = dateChoices.foodExtras.findIndex(item => item.value === value);
+
+          if (index > -1) {
+            // Unselect
+            dateChoices.foodExtras.splice(index, 1);
+            card.classList.remove('selected');
+            setCharacterReaction('kuku', `Coco & Potato Corner is still locked in!`);
+          } else {
+            // Select extra
+            dateChoices.foodExtras.push({ value, icon });
+            card.classList.add('selected');
+            const luluQuote = card.getAttribute('data-lulu');
+            setCharacterReaction('lulu', luluQuote || `Yummy! Adding ${value} alongside our Potato Corner!`);
+          }
+          updateSummary();
+        });
+      });
+    }
+
+    // Surprise Me Randomizer
+    function surpriseRandomizer() {
+      playBeep('chime');
+
+      // Randomize Vibe
+      const vibes = document.querySelectorAll('[data-category="vibe"] .date-card');
+      vibes.forEach(c => c.classList.remove('selected'));
+      const randVibe = vibes[Math.floor(Math.random() * vibes.length)];
+      randVibe.classList.add('selected');
+      dateChoices.vibe = { value: randVibe.getAttribute('data-value'), icon: randVibe.getAttribute('data-icon') };
+
+      // Randomize Main Event (Now among 4 options!)
+      const acts = document.querySelectorAll('[data-category="activity"] .date-card');
+      acts.forEach(c => c.classList.remove('selected'));
+      const randAct = acts[Math.floor(Math.random() * acts.length)];
+      randAct.classList.add('selected');
+      dateChoices.activity = { value: randAct.getAttribute('data-value'), icon: randAct.getAttribute('data-icon') };
+
+      // Randomize Dessert
+      const desserts = document.querySelectorAll('[data-category="dessert"] .date-card');
+      desserts.forEach(c => c.classList.remove('selected'));
+      const randDes = desserts[Math.floor(Math.random() * desserts.length)];
+      randDes.classList.add('selected');
+      dateChoices.dessert = { value: randDes.getAttribute('data-value'), icon: randDes.getAttribute('data-icon') };
+
+      updateSummary();
+      setCharacterReaction('both', "Surprise combo picked! Don't forget, Potato Corner + cuddles are forever locked! 🎒💕");
+
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#FFB3C6', '#FF8FAB', '#FB6F92', '#6CB2EB', '#FFFDF9']
+      });
+    }
+
+    // Reset non-required choices
+    function resetNonRequired() {
+      playBeep('pop');
+      ['vibe', 'activity', 'dessert'].forEach(cat => {
+        dateChoices[cat] = null;
+        const container = document.querySelector(`[data-category="${cat}"]`);
+        if (container) {
+          container.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+        }
+      });
+      // Clear food extras
+      dateChoices.foodExtras = [];
+      document.querySelectorAll('.food-extra-card').forEach(c => c.classList.remove('selected'));
+
+      document.getElementById('girlfriend-note').value = "";
+      updateSummary();
+      setCharacterReaction('lulu', "Reset non-required options! Potato Corner and sleep with Baba stay locked forever! 🎀");
+    }
+
+    // Open date ticket modal
+    function openFinalTicketModal() {
+      playBeep('chime');
+
+      confetti({
+        particleCount: 95,
+        spread: 75,
+        origin: { y: 0.55 },
+        colors: ['#FB6F92', '#FF8FAB', '#FFB3C6', '#6CB2EB', '#FFD1DC']
+      });
+
+      const vibe = dateChoices.vibe ? `${dateChoices.vibe.icon} ${dateChoices.vibe.value}` : 'Surprise Playful Mood 🧸';
+      
+      let foodDisplay = `🧋🍟 Coco and Potato Corner (Required)`;
+      if (dateChoices.foodExtras.length > 0) {
+        foodDisplay += ` + ${dateChoices.foodExtras.map(f => `${f.icon} ${f.value}`).join(', ')}`;
+      }
+
+      const activity = dateChoices.activity ? `${dateChoices.activity.icon} ${dateChoices.activity.value}` : 'Photobooth Strip Session 📸';
+      const dessert = dateChoices.dessert ? `${dateChoices.dessert.icon} ${dateChoices.dessert.value}` : 'Matcha & Sweet Treats 🍵';
+      const finale = `🫂💋 Long Hug & Forehead Kisses + 😴🛌 Sleep with Baba`;
+      const note = dateChoices.note ? dateChoices.note : 'Hold my hand, buy me fries, and love me lots! 💕';
+
+      const detailsContainer = document.getElementById('modal-ticket-details');
+      detailsContainer.innerHTML = `
+        <div class="bg-rose-50/80 p-4 rounded-2xl border border-pastelPink200 space-y-2.5 text-xs sm:text-sm">
+          <div class="flex justify-between items-center pb-1.5 border-b border-pastelPink200/60">
+            <span class="text-pastelPink500 font-bold uppercase tracking-wider text-[11px]">1. Vibe:</span>
+            <span class="text-rose-950 font-bold text-right">${vibe}</span>
+          </div>
+          <div class="flex justify-between items-center pb-1.5 border-b border-pastelPink200/60">
+            <span class="text-pastelPink500 font-bold uppercase tracking-wider text-[11px]">2. Feast:</span>
+            <span class="text-rose-950 font-bold text-right max-w-[65%] truncate">${foodDisplay}</span>
+          </div>
+          <div class="flex justify-between items-center pb-1.5 border-b border-pastelPink200/60">
+            <span class="text-pastelPink500 font-bold uppercase tracking-wider text-[11px]">3. Main Event:</span>
+            <span class="text-rose-950 font-bold text-right max-w-[65%] leading-tight">${activity}</span>
+          </div>
+          <div class="flex justify-between items-center pb-1.5 border-b border-pastelPink200/60">
+            <span class="text-pastelPink500 font-bold uppercase tracking-wider text-[11px]">4. Sweet Tooth:</span>
+            <span class="text-rose-950 font-bold text-right">${dessert}</span>
+          </div>
+          <div class="flex justify-between items-start pb-1.5 border-b border-pastelPink200/60">
+            <span class="text-pastelPink500 font-bold uppercase tracking-wider text-[11px]">5. Finale:</span>
+            <span class="text-rose-950 font-bold text-right max-w-[65%] leading-tight">${finale}</span>
+          </div>
+          <div class="pt-1.5">
+            <span class="text-pastelPink500 font-bold uppercase tracking-wider text-[11px] block mb-1">Message for Baba:</span>
+            <p class="text-rose-900 italic bg-white p-2.5 rounded-xl border border-pastelPink100">"${note}"</p>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById('ticket-modal');
+      const modalCard = document.getElementById('ticket-modal-card');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modalCard.classList.remove('scale-95');
+        modalCard.classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('ticket-modal');
+      const modalCard = document.getElementById('ticket-modal-card');
+      modalCard.classList.add('scale-95');
+      modalCard.classList.remove('scale-100');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.getElementById('copy-toast').classList.add('hidden');
+      }, 200);
+    }
+
+    // Direct clipboard copy for Baba
+    function copyItineraryForBaba() {
+      playBeep('pop');
+
+      const vibe = dateChoices.vibe ? `${dateChoices.vibe.icon} ${dateChoices.vibe.value}` : 'Playful Arcade & Chaos 🕹️';
+      
+      let food = `🧋🍟 Coco and Potato Corner (Required!)`;
+      if (dateChoices.foodExtras.length > 0) {
+        food += `\n   + Also craving: ${dateChoices.foodExtras.map(f => `${f.icon} ${f.value}`).join(', ')}`;
+      }
+
+      const activity = dateChoices.activity ? `${dateChoices.activity.icon} ${dateChoices.activity.value}` : 'Photobooth Strip Session 📸';
+      const dessert = dateChoices.dessert ? `${dateChoices.dessert.icon} ${dateChoices.dessert.value}` : 'Matcha & Coffee 🍵☕';
+      const finale = `🫂💋 Long Hug & Forehead Kisses + 😴🛌 Sleep with Baba (REQUIRED & SIGNED!)`;
+      const note = dateChoices.note ? `\n\n💌 My Special Request for Baba: "${dateChoices.note}"` : '';
+
+      const itineraryText = `Hey Baba! 🐾💕 Here is our official date plan signed by Kuku & Lulu:
+
+1. ✨ Vibe & Mood: ${vibe}
+2. 🍜 Feast: ${food}
+3. 📸 Main Event: ${activity}
+4. 🍰 Sweet Tooth: ${dessert}
+5. 🌙 Sweet Finale: ${finale}${note}
+
+You are contractually booked by your Princess! See you soon Baba! 🥰🎀`;
+
+      const textArea = document.createElement("textarea");
+      textArea.value = itineraryText;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand('copy');
+        const toast = document.getElementById('copy-toast');
+        toast.classList.remove('hidden');
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    // Toggle sound effects
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const statusText = document.getElementById('sound-status-text');
+      const icon = document.getElementById('sound-icon');
+      if (soundEnabled) {
+        statusText.textContent = 'Sound: ON';
+        icon.setAttribute('data-lucide', 'volume-2');
+        playBeep('pop');
+      } else {
+        statusText.textContent = 'Sound: OFF';
+        icon.setAttribute('data-lucide', 'volume-x');
+      }
+      lucide.createIcons();
+    }
+
+    // Interactive hero clicks
+    function setupHeroClicks() {
+      document.getElementById('kuku-hero').addEventListener('click', () => {
+        playBeep('meow');
+        setCharacterReaction('kuku', "Meow! Ready to buy you all the Potato Corner, dance silly, and cuddle Baba! 🐾");
+      });
+      document.getElementById('lulu-hero').addEventListener('click', () => {
+        playBeep('purr');
+        setCharacterReaction('lulu', "Giggle! You're the best boyfriend ever, Baba! Forehead kisses please! 🎀");
+      });
+    }
+
+    // Window initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      setupBackgroundParticles();
+      setupSingleChoiceListeners();
+      setupFoodExtraListeners();
+      setupHeroClicks();
+      lucide.createIcons();
+
+      // Listen for text input in note
+      document.getElementById('girlfriend-note').addEventListener('input', updateSummary);
+
+      // Button handlers
+      document.getElementById('sound-toggle-btn').addEventListener('click', toggleSound);
+      document.getElementById('surprise-btn').addEventListener('click', surpriseRandomizer);
+      document.getElementById('reset-btn').addEventListener('click', resetNonRequired);
+      document.getElementById('lock-date-btn').addEventListener('click', openFinalTicketModal);
+      document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+      document.getElementById('modal-done-btn').addEventListener('click', closeModal);
+      document.getElementById('copy-clipboard-btn').addEventListener('click', copyItineraryForBaba);
+
+      document.getElementById('ticket-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'ticket-modal') closeModal();
+      });
+
+      // Initial ticket sync
+      updateSummary();
+    });
+  </script>
+</body>
+</html>
